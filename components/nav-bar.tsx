@@ -5,6 +5,7 @@ const links = [{ href: "/booking", label: "Booking" }];
 
 export async function NavBar() {
   const user = await getCurrentUser();
+  console.log("uuser", user);
 
   return (
     <div className="shadow">
