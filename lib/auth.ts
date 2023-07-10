@@ -26,6 +26,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ account, profile }) {
+      console.log("Signin ");
       if (!profile?.email) {
         throw new Error("No profile");
       }
@@ -44,6 +45,7 @@ export const authOptions: NextAuthOptions = {
           image: (profile as any).picture,
         },
       });
+      console.log("Signin Complete");
       return true;
     },
     session: async ({ session, token }) => {
