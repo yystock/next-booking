@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/session";
 import Link from "next/link";
 import Avatar from "@/components/avatar";
+import { UserMenu } from "./user-menu";
 const links = [{ href: "/booking", label: "Booking" }];
 
 export async function NavBar() {
@@ -25,7 +26,7 @@ export async function NavBar() {
           </ul>
         </nav>
         <span className="flex-grow" />
-        <Avatar user={user} />
+        <UserMenu user={user} />
       </div>
     </div>
   );
