@@ -11,12 +11,71 @@ datasource db {
   relationMode = "prisma"
 }
 
+enum UserRole {
+  ADMIN
+  USER
+  CREATOR
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole      @default(USER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  contactId     String?
+  contact       Contact[]
+  activity      Activity[]
+  reservations  Reservation[]
+}
+
+model Activity {
+  id           String        @id @default(cuid())
+  name         String
+  imageSrc     String
+  price        Int
+  location     String
+  description  String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  startAt      DateTime
+  endAt        DateTime
+  userId       String
+  guestCount   Int?
+  category     String?
+  user         User          @relation(fields: [userId], references: [id])
+  reservations Reservation[]
+}
+
+model Reservation {
+  id    String  @id @default(cuid())
+  name  String?
+  email String? @unique
+
+  totalPrice Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Contact {
+  id          String  @id @default(cuid())
+  firstName   String?
+  lastName    String?
+  phone       String?
+  address     String?
+  city_id     String?
+  city        String?
+  state       String?
+  postal_code String?
+  socialName  String?
+  socialValue String?
+  User        User    @relation(fields: [userId], references: [id])
+  userId      String
 }
