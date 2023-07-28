@@ -2,15 +2,17 @@ import { getCurrentUser } from "@/lib/session";
 import Link from "next/link";
 import { UserMenu } from "./user-menu";
 import { ModeToggle } from "./mode-toggle";
-const links = [{ href: "/booking", label: "Booking" }];
+const links = [
+  { href: "/booking", label: "Booking" },
+  { href: "/account", label: "Account" },
+];
 
 export async function NavBar() {
   const user = await getCurrentUser();
-  console.log("uuser", user);
 
   return (
     <div className="shadow">
-      <div className="container mx-auto flex items-center py-2 space-x-4">
+      <div className="container max-w-7xl mx-auto flex items-center py-2 space-x-4">
         <Link href="/" className="py-1 px-2 hover:bg-accent rounded">
           <span className="font-semibold">Booking</span>
         </Link>

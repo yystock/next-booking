@@ -1,5 +1,5 @@
 import { NavBar } from "@/components/nav-bar";
-import "./globals.css";
+import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NavBar />
           <ModalProvider />
-          <Toaster />
+          {/* <Toaster /> */}
           {children}
         </ThemeProvider>
       </body>

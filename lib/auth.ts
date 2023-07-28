@@ -39,6 +39,9 @@ export const authOptions: NextAuthOptions = {
           email: profile.email,
           name: profile.name,
           image: (profile as any).picture,
+          tenant: {
+            create: {},
+          },
         },
         update: {
           name: profile.name,
@@ -54,6 +57,7 @@ export const authOptions: NextAuthOptions = {
         session.user.image = token.picture;
         session.user.name = token.name;
         session.user.email = token.email;
+        // session.user.role = token.role;
       }
       return session;
     },

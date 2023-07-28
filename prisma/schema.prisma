@@ -17,23 +17,71 @@ enum UserRole {
   CREATOR
 }
 
+model Tenant {
+  id               String        @id @default(cuid())
+  name             String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  stripeCustomerId String?
+  expirationDate   DateTime? // NULL -> means no expiration
+  inviteKey        String        @unique @default(cuid())
+  users            User[]
+  activities       Activity[]
+  clients          Client[]
+  reservations     Reservation[]
+  schedules        Schedule[]
+}
+
 model User {
-  id            String        @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String?       @unique
+  email         String?    @unique
   emailVerified DateTime?
   image         String?
-  role          UserRole      @default(USER)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  contactId     String?
-  contact       Contact[]
-  activity      Activity[]
-  reservations  Reservation[]
+  role          UserRole   @default(USER)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  tenantId      String
+  activities    Activity[]
+  schedules     Schedule[]
+  tenant        Tenant     @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+}
+
+model Client {
+  id           String        @id @default(cuid())
+  name         String
+  color        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  reservations Reservation[]
+
+  @@index([tenantId])
+}
+
+model Schedule {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  tenantId   String
+  customer   Int      @default(1)
+  start      DateTime
+  end        DateTime
+  activityId Int
+
+  user       User     @relation(fields: [userId], references: [id])
+  activities Activity @relation(fields: [activityId], references: [id])
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([activityId])
+  @@index([userId])
+  @@index([tenantId])
 }
 
 model Activity {
-  id           String        @id @default(cuid())
+  id           Int           @id @default(autoincrement())
   name         String
   imageSrc     String
   price        Int
@@ -41,41 +89,39 @@ model Activity {
   description  String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  startAt      DateTime
-  endAt        DateTime
   userId       String
   guestCount   Int?
+  active       Boolean       @default(false)
   category     String?
+  tenantId     String
   user         User          @relation(fields: [userId], references: [id])
   reservations Reservation[]
+  schedules    Schedule[]
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+
+  @@index([userId])
+  @@index([tenantId])
 }
 
 model Reservation {
-  id    String  @id @default(cuid())
-  name  String?
-  email String? @unique
+  id   Int     @id @default(autoincrement())
+  name String?
 
   totalPrice Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  userId     String
-  activityId String
-  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id])
-}
+  clientId   String
+  activityId Int
+  isPaid     Boolean  @default(false)
+  phone      String   @default("")
+  address    String   @default("")
+  tenantId   String
 
-model Contact {
-  id          String  @id @default(cuid())
-  firstName   String?
-  lastName    String?
-  phone       String?
-  address     String?
-  city_id     String?
-  city        String?
-  state       String?
-  postal_code String?
-  socialName  String?
-  socialValue String?
-  User        User    @relation(fields: [userId], references: [id])
-  userId      String
+  activity Activity @relation(fields: [activityId], references: [id])
+  client   Client   @relation(fields: [clientId], references: [id])
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([activityId])
+  @@index([clientId])
+  @@index([tenantId])
 }
