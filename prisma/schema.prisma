@@ -6,9 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // relationMode = "prisma"
 }
 
 enum UserRole {
@@ -84,21 +84,24 @@ model Activity {
   id           Int           @id @default(autoincrement())
   name         String
   imageSrc     String
-  price        Int
-  location     String
+  price        Decimal
+  address      String
+  latitude     Float
+  longitude    Float
   description  String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   userId       String
-  guestCount   Int?
+  guestCount   Int           @default(1)
   active       Boolean       @default(false)
-  category     String?
+  category     String        @default("Experience")
   tenantId     String
   user         User          @relation(fields: [userId], references: [id])
   reservations Reservation[]
   schedules    Schedule[]
   tenant       Tenant        @relation(fields: [tenantId], references: [id])
 
+  // Image        Image[]
   @@index([userId])
   @@index([tenantId])
 }
@@ -107,7 +110,7 @@ model Reservation {
   id   Int     @id @default(autoincrement())
   name String?
 
-  totalPrice Int
+  totalPrice Decimal
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   clientId   String
@@ -125,3 +128,14 @@ model Reservation {
   @@index([clientId])
   @@index([tenantId])
 }
+
+// model Image {
+//   id         String   @id @default(uuid())
+//   activityId Int // Foreign Key to Product
+//   activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+//   url        String // URL of the image
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+
+//   @@index([activityId])
+// }

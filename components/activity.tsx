@@ -13,8 +13,8 @@ const Activity: FC<ActivityProps> = ({ activity }) => {
       <div>{activity.description}</div>
       <div>{activity.guestCount}</div>
       <div>{activity.imageSrc}</div>
-      <div>{activity.location}</div>
-      <div>{activity.price}</div>
+
+      <div>{parseFloat(String(activity.price))}</div>
       <div>{activity.userId}</div>
     </div>
   );

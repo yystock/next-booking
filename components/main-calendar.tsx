@@ -11,7 +11,6 @@ const MainCalendar: FC<MainCalendarProps> = () => {
   const [date, setDate] = useState<Date>();
 
   const onDate = (d: Date | undefined) => {
-    console.log(d);
     if (!d) return;
     if (date) {
       d.setHours(date.getHours());

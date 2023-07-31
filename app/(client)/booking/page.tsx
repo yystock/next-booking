@@ -10,7 +10,7 @@ export default function Booking() {
   return (
     <div className="container max-w-6xl mx-auto">
       <p>Instant</p>
-      <Map />
+      <Map initialData={null} />
     </div>
   );
 }

@@ -2,13 +2,19 @@ import { getCurrentUser } from "@/lib/session";
 import Link from "next/link";
 import { UserMenu } from "./user-menu";
 import { ModeToggle } from "./mode-toggle";
-const links = [
-  { href: "/booking", label: "Booking" },
-  { href: "/account", label: "Account" },
-];
+import { getRole } from "@/app/actions/getRole";
+import { buttonVariants } from "./ui/button";
+import { cn } from "@/lib/utils";
+import { navLinks } from "@/config/site";
+import { dashboardLinks } from "@/config/dashboard";
 
-export async function NavBar() {
+interface NavBarProps {
+  type: string;
+}
+export async function NavBar({ type }: NavBarProps) {
   const user = await getCurrentUser();
+  const role = await getRole(user?.id);
+  const links = type === "main" ? navLinks : dashboardLinks;
 
   return (
     <div className="shadow">
@@ -29,7 +35,15 @@ export async function NavBar() {
         </nav>
         <span className="flex-grow" />
         <ModeToggle />
-        <UserMenu user={user} />
+        {user ? (
+          <>
+            <UserMenu user={user} role={role} />
+          </>
+        ) : (
+          <Link href="/login" className={cn(buttonVariants({ variant: "default" }))}>
+            Login
+          </Link>
+        )}
       </div>
     </div>
   );

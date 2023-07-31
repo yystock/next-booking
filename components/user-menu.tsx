@@ -15,9 +15,10 @@ import Link from "next/link";
 import { Logout } from "./logout";
 interface UserMenuProps {
   user?: User;
+  role: string | null;
 }
 
-export const UserMenu: FC<UserMenuProps> = ({ user }) => {
+export const UserMenu: FC<UserMenuProps> = ({ user, role }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -26,6 +27,11 @@ export const UserMenu: FC<UserMenuProps> = ({ user }) => {
       <DropdownMenuContent>
         <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {role === "ADMIN" && (
+          <DropdownMenuItem asChild className="w-full cursor-pointer">
+            <Link href="/dashboard">Dashboard</Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild className="w-full cursor-pointer">
           <Link href="/profile">Profile</Link>
         </DropdownMenuItem>

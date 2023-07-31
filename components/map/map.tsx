@@ -2,12 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { GoogleMap, InfoWindowF, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import axios from "axios";
+import { Activity } from "@prisma/client";
 
 export const DEFAULT_DISTANCE_IN_KM = "100";
 
@@ -21,106 +19,59 @@ const containerStyle = {
   width: "100%",
   height: "600px",
 };
-export type Place = {
-  name: string;
-  address: string;
-  latitude: number;
-  longitude: number;
-};
 
-export type geoLocation = {
-  data: {
-    lat: number;
-    lng: number;
-  };
-};
+type LatLngLiteral = google.maps.LatLngLiteral;
+interface MapProps {
+  initialData: Activity[] | null;
+}
 
-export default function Map() {
-  const [places, setPlaces] = useState<Place[]>([
-    {
-      name: "Burger City",
-      address: "999 Some Street, New York City, NY",
-      latitude: 40.7121,
-      longitude: -74.005,
-    },
-    {
-      name: "Another Burger",
-      address: "243 Some Street, New York City, NY",
-      latitude: 40.7131,
-      longitude: -74.015,
-    },
-    {
-      name: "Burger Awesome",
-      address: "143 Some Street, New York City, NY",
-      latitude: 40.7031,
-      longitude: -74.035,
-    },
-  ]);
+export default function Map({ initialData }: MapProps) {
+  const [places, setPlaces] = useState<Activity[] | null>(initialData);
+  const [currentLocation, setCurrentLocation] = useState({});
+  const [selectedPlaces, setSelectedPlaces] = useState<Activity | undefined>(undefined);
 
-  const cityRef = useRef(undefined);
+  const mapRef = useRef<GoogleMap>();
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!,
   });
 
-  const [position, setPosition] = useState({
-    lat: places[0].latitude,
-    lon: places[0].longitude,
+  const [position, setPosition] = useState<LatLngLiteral>({
+    lat: initialData && initialData.length > 0 ? initialData[0].latitude : 0,
+    lng: initialData && initialData.length > 0 ? initialData[0].longitude : 0,
   });
 
-  const [selectedPlaces, setSelectedPlaces] = useState<Place | undefined>(undefined);
+  const getLocation = async () => {
+    try {
+      const location = await axios.get("https://iapi.co/json");
+      setPosition({
+        lat: location.data.latitude,
+        lng: location.data.longitude,
+      });
+    } catch (error) {
+      return null;
+    }
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      setPlaces(() => [...places]);
-    }, 3000);
+    setPlaces(initialData);
+    getLocation();
   }, []);
-
-  const form = useForm<z.infer<typeof configureSchema>>({
-    resolver: zodResolver(configureSchema),
-    defaultValues: {
-      city: "",
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof configureSchema>) {
-    const { data } = (await axios.get(`/api/map?city=${values.city}`)) as geoLocation;
-    setPosition({ lat: data.lat, lon: data.lng });
-  }
 
   return (
     <div className="flex flex-col gap-4">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-4">
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem className="flex items-center">
-                <FormLabel className="hidden">City</FormLabel>
-                <FormControl>
-                  <Input placeholder="City" {...field} />
-                </FormControl>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
-
       {isLoaded && (
-        <GoogleMap mapContainerStyle={containerStyle} center={{ lat: position.lat, lng: position.lon }} zoom={13}>
-          {places.map((place) => (
-            <MarkerF
-              key={`${place.address}-${place.name}-${place.latitude}${place.longitude}`}
-              onClick={() => {
-                place === selectedPlaces ? setSelectedPlaces(undefined) : setSelectedPlaces(place);
-              }}
-              position={{ lat: place.latitude, lng: place.longitude }}
-            />
-          ))}
+        <GoogleMap mapContainerStyle={containerStyle} center={{ lat: position.lat, lng: position.lng }} zoom={13}>
+          {places &&
+            places.map((place) => (
+              <MarkerF
+                key={`${place.address}-${place.name}-${place.latitude}${place.longitude}`}
+                onClick={() => {
+                  place === selectedPlaces ? setSelectedPlaces(undefined) : setSelectedPlaces(place);
+                }}
+                position={{ lat: place.latitude, lng: place.longitude }}
+              />
+            ))}
           {selectedPlaces && (
             <InfoWindowF
               position={{

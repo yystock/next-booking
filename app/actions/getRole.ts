@@ -6,9 +6,6 @@ export async function getRole(id?: string) {
     where: {
       id: id,
     },
-    include: {
-      activities: true,
-    },
   });
   if (!user) return null;
   return user.role;

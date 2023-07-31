@@ -4,12 +4,7 @@ const nextConfig = {
     serverActions: true,
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**.googleusercontent.com",
-      },
-    ],
+    domains: ["res.cloudinary.com", "avatars.githubusercontent.com", "lh3.googleusercontent.com"],
   },
 };
 

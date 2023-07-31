@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
         session.user.image = token.picture;
         session.user.name = token.name;
         session.user.email = token.email;
-        // session.user.role = token.role;
+        session.user.tenant = token.tenant;
       }
       return session;
     },
@@ -72,6 +72,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("No user found");
         }
         token.id = user.id;
+        token.tenant = {
+          id: user.tenantId,
+        };
       }
       return token;
     },
