@@ -9,6 +9,6 @@ export const activityFormSchema = z.object({
   longitude: z.number().min(-180).max(180),
   description: z.string().min(1),
   category: z.string().optional(),
-  guestCount: z.number().optional(),
+  guestCount: z.coerce.number().optional(),
   active: z.boolean().default(false).optional(),
 });

@@ -46,7 +46,7 @@ model User {
   schedules     Schedule[]
   tenant        Tenant     @relation(fields: [tenantId], references: [id])
 
-  @@index([tenantId])
+  // @@index([tenantId])
 }
 
 model Client {
@@ -59,29 +59,29 @@ model Client {
   tenant       Tenant        @relation(fields: [tenantId], references: [id])
   reservations Reservation[]
 
-  @@index([tenantId])
+  // @@index([tenantId])
 }
 
 model Schedule {
-  id         Int      @id @default(autoincrement())
-  userId     String
-  tenantId   String
-  customer   Int      @default(1)
-  start      DateTime
-  end        DateTime
-  activityId Int
+  id       Int    @id @default(autoincrement())
+  name     String
+  userId   String
+  tenantId String
+  customer Int    @default(1)
+  start    String
+  end      String
 
-  user       User     @relation(fields: [userId], references: [id])
-  activities Activity @relation(fields: [activityId], references: [id])
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  user       User               @relation(fields: [userId], references: [id])
+  activities ActivitySchedule[]
+  tenant     Tenant             @relation(fields: [tenantId], references: [id])
 
-  @@index([activityId])
-  @@index([userId])
-  @@index([tenantId])
+  // @@index([activityId])
+  // @@index([userId])
+  // @@index([tenantId])
 }
 
 model Activity {
-  id           Int           @id @default(autoincrement())
+  id           Int                @id @default(autoincrement())
   name         String
   imageSrc     String
   price        Decimal
@@ -89,21 +89,31 @@ model Activity {
   latitude     Float
   longitude    Float
   description  String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
   userId       String
-  guestCount   Int           @default(1)
-  active       Boolean       @default(false)
-  category     String        @default("Experience")
+  guestCount   Int                @default(1)
+  active       Boolean            @default(false)
+  category     String             @default("Experience")
   tenantId     String
-  user         User          @relation(fields: [userId], references: [id])
+  user         User               @relation(fields: [userId], references: [id])
   reservations Reservation[]
-  schedules    Schedule[]
-  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  schedules    ActivitySchedule[]
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
 
   // Image        Image[]
-  @@index([userId])
-  @@index([tenantId])
+  // @@index([userId])
+  // @@index([tenantId])
+}
+
+model ActivitySchedule {
+  activityId Int
+  scheduleId Int
+  assignedBy String
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
+  activity   Activity @relation(fields: [activityId], references: [id])
+
+  @@id([activityId, scheduleId])
 }
 
 model Reservation {
@@ -124,9 +134,9 @@ model Reservation {
   client   Client   @relation(fields: [clientId], references: [id])
   tenant   Tenant   @relation(fields: [tenantId], references: [id])
 
-  @@index([activityId])
-  @@index([clientId])
-  @@index([tenantId])
+  // @@index([activityId])
+  // @@index([clientId])
+  // @@index([tenantId])
 }
 
 // model Image {
