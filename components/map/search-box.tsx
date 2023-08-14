@@ -58,7 +58,7 @@ function PlacesAutocomplete({ onSelectAddress, defaultValue }: ISearchBoxProps) 
         value={value}
         onValueChange={handleChange}
         disabled={!ready}
-        className="h-1/2 lg:h-auto w-full lg:w-96 shadow-sm p-4 rounded-md text-gray-900"
+        className="w-full  shadow-sm p-4 rounded-md"
         placeholder="Search a location..."
       />
 

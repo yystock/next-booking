@@ -59,6 +59,7 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ initialData }) => {
   });
 
   const onSubmit = async (data: ActivityFormValues) => {
+    toast.success("ye");
     try {
       setLoading(true);
       if (initialData) {
@@ -67,6 +68,7 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ initialData }) => {
         await axios.post(`/api/activity`, data);
       }
       router.refresh();
+      toast.success("yeah");
       router.push(`/dashboard/activity`);
       toast.success(toastMessage);
     } catch (error: any) {
@@ -125,7 +127,7 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ initialData }) => {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Images</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
                     <SearchBox
                       defaultValue={initialData ? initialData.address : ""}

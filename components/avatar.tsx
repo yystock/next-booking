@@ -8,21 +8,21 @@ interface AvatarProps {
 
 const Avatar: React.FC<AvatarProps> = ({ user }) => {
   return (
-    <div className="relative">
-      <div
-        className="
+    <div
+      className="
         relative 
-        inline-block 
+        flex
         rounded-full 
         overflow-hidden
         h-9 
         w-9 
         md:h-11 
         md:w-11
+        items-center
+      
       "
-      >
-        <Image fill src={user?.image || "/images/placeholder.jpg"} alt="Avatar" />
-      </div>
+    >
+      <Image fill sizes="24" src={user?.image || "/images/placeholder.jpg"} alt="Avatar" />
     </div>
   );
 };

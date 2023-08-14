@@ -1,7 +1,6 @@
-import { NavBar } from "@/components/nav-bar";
 import "@/app/globals.css";
 import { Inter } from "next/font/google";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ModalProvider } from "@/providers/modal-provider";
 

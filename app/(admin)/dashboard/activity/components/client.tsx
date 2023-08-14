@@ -6,7 +6,7 @@ import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { Activity } from "@prisma/client";
-import Map from "@/components/map/map";
+import LoadMap from "@/components/map/load-map";
 
 interface ActivityClientProps {
   data: Activity[];
@@ -23,7 +23,7 @@ export const ActivityClient: React.FC<ActivityClientProps> = ({ data }) => {
         </Button>
       </div>
       <Separator />
-      <Map initialData={data} />
+      <LoadMap initialData={data} />
     </>
   );
 };

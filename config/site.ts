@@ -1,4 +1,5 @@
 export const navLinks = [
-  { href: "/booking", label: "Booking" },
-  { href: "/account", label: "Account" },
+  { href: "/booking", label: "Map" },
+  // { href: "/about", label: "About" },
+  // { href: "/account", label: "Account" },
 ];
