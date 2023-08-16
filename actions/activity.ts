@@ -25,6 +25,12 @@ export async function deleteActivity(id: string) {
 }
 
 export async function createActivity(data: any) {
+  const locationResult: { id: number }[] = await db.$queryRaw`
+        INSERT INTO "Location" ("coords")
+        VALUES (ST_MakePoint(${data.longitude}, ${data.latitude}))
+        RETURNING "id";
+      `;
+  const locationId = locationResult[0].id;
   await db.activity.create({
     data: {
       name: data.name,
@@ -39,6 +45,7 @@ export async function createActivity(data: any) {
       category: data.category,
       active: data.active,
       tenantId: data.tenantId,
+      locationId: locationId,
     },
   });
 
