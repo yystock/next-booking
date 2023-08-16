@@ -15,6 +15,13 @@ export async function POST(req: Request) {
     const json = await req.json();
     const body = activityFormSchema.parse(json);
 
+    const locationResult: { id: number }[] = await db.$queryRaw`
+        INSERT INTO "Location" ("coords")
+        VALUES (ST_MakePoint(${body.longitude}, ${body.latitude}))
+        RETURNING "id";
+      `;
+    const locationId = locationResult[0].id;
+
     const activity = await db.activity.create({
       data: {
         name: body.name,
@@ -29,6 +36,7 @@ export async function POST(req: Request) {
         guestCount: body.guestCount,
         price: body.price,
         category: body.category,
+        locationId: locationId,
       },
     });
 
