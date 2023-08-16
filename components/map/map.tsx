@@ -12,7 +12,6 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { LocateFixed, DollarSign, Radar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
 const containerStyle = {
   width: "100%",
   height: "600px",
@@ -38,9 +37,10 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
   const searchParams = useSearchParams();
   const lat = searchParams.get("lat");
   const lng = searchParams.get("lng");
+  const searchOptions = searchParams.get("searchOptions");
   const mapRef = useRef<google.maps.Map>();
 
-  const [center, setCenter] = useState<LatLngLiteral>({ lat: 0, lng: 0 });
+  const [center, setCenter] = useState<LatLngLiteral>({ lat: c_lat ? c_lat : 0, lng: c_lng ? c_lng : 0 });
   // const debouncedValue = useDebounce<LatLngLiteral>(center, 500);
 
   const options = useMemo<MapOptions>(
@@ -56,7 +56,7 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
     mapRef.current = map;
   }, []);
 
-  const getLocation = async () => {
+  const getLocation = useCallback(async () => {
     try {
       const location = await axios.get("https://ipapi.co/json");
       setCenter({
@@ -66,7 +66,7 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
     } catch (error) {
       return null;
     }
-  };
+  }, []);
 
   useEffect(() => {
     if ((!lat && !lng) || (!center.lat && !center.lng)) {
@@ -77,30 +77,30 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
   }, []);
 
   useEffect(() => {
-    console.log(initialData?.length);
-    setTimeout(() => {
-      console.log("Waited for 1 second.");
-    }, 1000);
-  }, [center, router]);
+    if (c_lat && c_lng) {
+      setCenter({ lat: c_lat, lng: c_lng });
+    }
+  }, [c_lat, c_lng]);
 
   useEffect(() => {
+    console.log("setting places..");
     setPlaces(initialData);
   }, [initialData]);
 
   const onSearch = useCallback((center: LatLngLiteral) => {
+    console.log("search");
     setCenter(center);
     mapRef.current?.panTo(center);
-    console.log("search");
     const searchOptions = "onSearch";
     const query = {
       searchOptions: searchOptions,
       lat: center.lat,
       lng: center.lng,
     };
-
+    const path = window.location.origin + "/booking";
     const url = qs.stringifyUrl(
       {
-        url: window.location.href,
+        url: path,
         query,
       },
       { skipNull: true, skipEmptyString: true }
@@ -116,8 +116,8 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
     if (centerChanged) {
       setCenter(centerChanged);
     }
-
     console.log("ondrag");
+
     const query = {
       searchOptions: searchOptions,
       s: bounds?.south,
@@ -127,9 +127,10 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
       lat: mapRef.current?.getCenter()?.lat(),
       lng: mapRef.current?.getCenter()?.lng(),
     };
+    const path = window.location.origin + "/booking";
     const url = qs.stringifyUrl(
       {
-        url: window.location.href,
+        url: path,
         query,
       },
       { skipNull: true, skipEmptyString: true }
@@ -138,16 +139,14 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
   }, []);
 
   const searchNearestSpot = useCallback(() => {
-    console.log("nearest");
+    console.log("nearest search");
     const searchOptions = "nearest";
     const query = {
       searchOptions: searchOptions,
       lat: center.lat,
       lng: center.lng,
     };
-    const path = window.location.origin + window.location.pathname;
-    console.log(path);
-
+    const path = window.location.origin + "/booking";
     const url = qs.stringifyUrl(
       {
         url: path,
@@ -160,9 +159,9 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
 
   return (
     <div className="relative w-full flex flex-col items-center">
-      <div className="relative flex p-4 shadow-md z-10 justify-center w-full">
+      <div className="relative flex shadow-md z-5 justify-center w-full">
         <SimpleSearchBox className="w-1/2" onSelectAddress={(center) => onSearch(center)} />
-        <div className="absolute top-0 right-0 p-4 z-10 flex gap-2">
+        <div className="absolute top-0 right-0 p-4 z-5 flex gap-2">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
@@ -193,14 +192,15 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
           onDragEnd={onBoundChange}
         >
           {places &&
-            places.map((place) => (
+            places.map((place, key) => (
               <MarkerF
+                icon={"https://img.icons8.com/isometric/50/experimental-like-isometric.png"}
                 key={`${place.address}-${place.name}-${place.latitude}${place.longitude}`}
                 onClick={() => {
                   place.id === selectedPlaces?.id ? setSelectedPlaces(undefined) : setSelectedPlaces(place);
                 }}
                 position={{ lat: place.latitude, lng: place.longitude }}
-              />
+              ></MarkerF>
             ))}
           {selectedPlaces && (
             <InfoWindowF
@@ -216,17 +216,20 @@ export default function Map({ initialData, c_lat, c_lng }: MapProps) {
             >
               <Card className="bg-white border-none">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium  text-accent">{selectedPlaces.name}</CardTitle>
-                  <div className="items-center flex text-accent">
+                  <CardTitle className="text-sm font-medium ">{selectedPlaces.name}</CardTitle>
+                  <div className="items-center flex">
                     <DollarSign className="h-4 w-4  " />
                     {String(selectedPlaces.price)}
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col gap-5">
-                    <div className="text-md font-bold text-accent">{selectedPlaces.description}</div>
-                    <div className="text-md font-bold text-accent">{selectedPlaces.address}</div>
+                    <div className="text-md font-bold">{selectedPlaces.description}</div>
+                    <div className="text-md font-bold">{selectedPlaces.address}</div>
                   </div>
+                  <Button variant={"outline"} onClick={() => router.push(`/booking/activity/${selectedPlaces.id}`)}>
+                    Detail
+                  </Button>
                 </CardContent>
               </Card>
             </InfoWindowF>

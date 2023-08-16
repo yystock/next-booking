@@ -17,8 +17,9 @@ interface BookingProps {
   };
 }
 export default async function Booking({ searchParams }: BookingProps) {
-  const latitude = searchParams.lat ? parseFloat(searchParams.lat) : undefined;
-  const longitude = searchParams.lng ? parseFloat(searchParams.lng) : undefined;
+  let latitude = searchParams.lat ? parseFloat(searchParams.lat) : undefined;
+  let longitude = searchParams.lng ? parseFloat(searchParams.lng) : undefined;
+  console.log("onClick");
 
   let activities: Activity[];
   if (searchParams.searchOptions === SearchOptions.onDrag && searchParams.s && searchParams.w && searchParams.e && searchParams.n) {
@@ -61,7 +62,7 @@ export default async function Booking({ searchParams }: BookingProps) {
     const nearestLocation: { id: number }[] = await db.$queryRaw`
       SELECT id
       FROM "Location"
-      ORDER BY ST_Distance(coords, ST_MakePoint(${longitude}, ${latitude})) ASC
+      ORDER BY ST_Distance(coords, ST_MakePoint(${longitude}, ${latitude})::geography) ASC
       LIMIT 1;
     `;
 
@@ -74,6 +75,8 @@ export default async function Booking({ searchParams }: BookingProps) {
         },
       },
     });
+    latitude = activities[0].latitude ? activities[0].latitude : undefined;
+    longitude = activities[0].longitude ? activities[0].longitude : undefined;
   } else {
     activities = await db.activity.findMany({
       include: {

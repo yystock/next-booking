@@ -16,7 +16,7 @@ export async function NavBar({ type, landing }: NavBarProps) {
   const role = await getRole(user?.id);
 
   return (
-    <div className="shadow">
+    <div className={cn("shadow backdrop-filter backdrop-blur-lg bg-opacity-30 ", !landing && "border-b border-gray-200")}>
       <div className="container max-w-7xl mx-auto flex items-center py-2 px-8 space-x-4 justify-center">
         <Link href="/" className={cn("py-1 px-2 rounded", landing ? "hover:bg-accent/30" : "hover:bg-accent")}>
           <span className={cn("font-semibold", landing ? "text-slate-100" : "text-foreground")}>Booking</span>
